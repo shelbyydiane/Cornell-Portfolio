@@ -1,0 +1,243 @@
+First run:
+
+grid_search = GridSearchCV(rf_model, param_grid=param_grid, cv=3, n_jobs=-1, scoring='neg_mean_squared_error')
+
+Best Parameters: {'max_depth': 20, 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 200}
+
+RMSE: 0.10144312865185903
+R2: 0.7103602637997593
+
+Analysis: RMSE looks good! I think R2 could be better. Going to adjust some params and see if I can do better
+
+~~~~~~~~~~~~~~~~~~~~~~
+
+Second run:
+
+param_grid = {
+    'n_estimators': [100, 200, 300],
+    'max_depth': [10, 20, 30, None],
+    'min_samples_split': [2, 5, 10],
+    'min_samples_leaf': [1, 2, 4],
+    'max_features': ['sqrt', 'log2'],
+    'bootstrap': [True, False]
+}
+
+grid_search = GridSearchCV(rf_model, param_grid=param_grid, cv=5, n_jobs=2, scoring='neg_mean_squared_error', pre_dispatch='2*n_jobs')
+
+Best Parameters: {'bootstrap': False, 'max_depth': 30, 'max_features': 'sqrt', 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 100}
+
+RMSE: 0.09774585096953853
+R2: 0.7310883997969576
+
+Analysis: Added in max features and bootstrap to the param grid, changed cv to 5. It's looking a bit better but R2 could still be better
+
+~~~~~~~~~~~~~~~~~~~~~~
+
+Third Run:
+
+low_importance_regions = ['Region_Sub-Saharan Africa', 'Region_South Asia', 'Region_Middle East and North Africa','Region_Western Europe', 'Region_East Asia', 'Region_Central and Eastern Europe', 'Region_North America and ANZ']
+X = X.drop(columns=low_importance_regions)
+
+param_grid = {
+    'n_estimators': [100, 200, 300, 400, 500],
+    'max_depth': [25, 30, 35, None],
+    'min_samples_split': [2, 3, 5],
+    'min_samples_leaf': [1, 2, 3],
+    'max_features': ['sqrt', 'log2'],
+    'bootstrap': [True, False]}
+
+Best Parameters: {'bootstrap': False, 'max_depth': 30, 'max_features': 'log2', 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 500}
+
+RMSE: 0.09988872762937027
+R2: 0.7191684897004091
+
+Analysis: So I tried removing the features with the lowest importance (<0.01) to see if that wouldd help. I also added some more options for n_estimators and changed the options for leaf, split, and depth. Now both did worse. Going to keep tweaking.
+
+
+~~~~~~~~~~~~~~~~~~~~~~
+
+Fourth Run:
+
+param_grid = {
+    'n_estimators': [50, 100, 200, 300],
+    'max_depth': [20, 25, 30, 35, None],
+    'min_samples_split': [2, 3, 5, 7],
+    'min_samples_leaf': [1, 2, 3, 4],
+    'max_features': ['sqrt', 'log2'],
+    'bootstrap': [True, False]
+}
+
+grid_search = GridSearchCV(rf_model, param_grid=param_grid, cv=5, n_jobs=2, scoring='neg_mean_squared_error', pre_dispatch='2*n_jobs')
+
+Best Parameters: {'bootstrap': False, 'max_depth': None, 'max_features': 'sqrt', 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 200}
+
+RMSE: 0.09872671730852088
+R2: 0.725664338031581
+
+Analysis: Added back in the features and changed the params. Still best was 2nd run. 
+
+
+~~~~~~~~~~~~~~~~~~~~~~
+
+Fifth Run:
+
+param_grid = {
+    'n_estimators': [100, 200, 300],
+    'learning_rate': [0.01, 0.05, 0.1, 0.2],
+    'max_depth': [3, 4, 5, 6],
+    'min_samples_split': [2, 5, 10],
+    'min_samples_leaf': [1, 2, 4]
+}
+
+grid_search = GridSearchCV(gbr_model, param_grid=param_grid, cv=5, n_jobs=-1, scoring='neg_mean_squared_error')
+
+Best Parameters: {'learning_rate': 0.1, 'max_depth': 5, 'min_samples_leaf': 4, 'min_samples_split': 10, 'n_estimators': 300}
+
+RMSE: 0.10076464867195625
+R2: 0.7142216902401299
+
+Analysis: I tried GradientBoostingRegression this time. Better results with random forest so I will go back to that.
+
+
+~~~~~~~~~~~~~~~~~~~~~~
+
+Sixth Run:
+
+
+param_grid = {
+    'n_estimators': [ 200, 300, 400, 500],
+    'max_depth': [20, 30, 40, None],
+    'min_samples_split': [2],
+    'min_samples_leaf': [1],
+    'max_features': ['sqrt', 'log2'],
+    'bootstrap': [False]
+}
+
+Best Parameters: {'bootstrap': False, 'max_depth': 20, 'max_features': 'log2', 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 400}
+
+RMSE: 0.09861936761479863
+R2: 0.7262606069862202
+
+Analysis: :/
+
+
+~~~~~~~~~~~~~~~~~~~~~~
+
+Seventh Run:
+
+param_grid = {
+    'n_estimators': [100, 200, 300],
+    'max_depth': [10, 20, 30, None],
+    'min_samples_split': [2, 5, 10],
+    'min_samples_leaf': [1, 2, 4],
+    'max_features': ['sqrt', 'log2'],
+    'bootstrap': [True, False]
+}
+
+Best Parameters: {'bootstrap': False, 'max_depth': 20, 'max_features': 'log2', 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 300}
+
+RMSE: 0.09987482607367064
+R2: 0.7192466511369395
+
+Analysis: Did params like second run but removed the low importance regions. Made it worse.
+
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~
+
+Eighth Run:
+
+It was overfitting.... I checked between the test and training data and it's a significant difference. I adjusted the parameters (reduced max depth, increased split and leaf)to try to reduce the overfitting. I'm going to try running the gradient boosting regression next and see if that works any better while checking for overfitting. 
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~
+
+...39347 runs later...
+
+Okay now I'm trying to remove the outliers. I tried a bunch of different parameters that didn't make much difference so I didn't record it
+
+~~~~~~~
+
+Random forest:
+
+param_grid = {
+    'n_estimators': [50, 100],
+    'max_depth': [3, 5],
+    'min_samples_split': [15, 20],
+    'min_samples_leaf': [10, 15],
+    'max_features': ['sqrt'],
+    'bootstrap': [True]
+}
+
+Best Parameters: {'bootstrap': True, 'max_depth': 5, 'max_features': 'sqrt', 'min_samples_leaf': 10, 'min_samples_split': 15, 'n_estimators': 100}
+
+Cross-validated RMSE: 0.1368436196265089 ± 0.014752341050284837
+
+
+Training RMSE: 0.11229535561683474
+Test RMSE: 0.11690437239188933
+R2: 0.5749847347378041
+
+
+Analysis: I removed the outliers but now R2 is much lower. I'm going to try Gradient Boosting again
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~
+
+
+Gradient Boosting:
+
+param_grid_gb = {
+    'n_estimators': [50, 100, 150],
+    'max_depth': [2, 3, 4],
+    'learning_rate': [0.01, 0.05, 0.1],
+    'subsample': [0.7, 0.8, 0.9],
+    'min_samples_split': [10, 15],
+    'min_samples_leaf': [10, 15]
+}
+
+Best Parameters for Gradient Boosting: {'learning_rate': 0.1, 'max_depth': 4, 'min_samples_leaf': 10, 'min_samples_split': 15, 'n_estimators': 150, 'subsample': 0.8}
+
+Cross-validated RMSE: 0.12482574000024627 ± 0.00811745965553539
+
+Gradient Boosting - Training RMSE: 0.04146646882428114
+Gradient Boosting - Test RMSE: 0.09438090643529563
+Gradient Boosting - R2: 0.7183957023749517
+
+Analysis: still overfitting.
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~
+
+
+Gradient Boosting:
+
+param_grid_gb = {
+    'n_estimators': [100, 200],
+    'max_depth': [2, 3],
+    'learning_rate': [0.01, 0.02, 0.05],
+    'subsample': [0.6, 0.7],
+    'min_samples_split': [20, 25],
+    'min_samples_leaf': [20, 25]
+}
+
+Best Parameters for Gradient Boosting: {'learning_rate': 0.05, 'max_depth': 3, 'min_samples_leaf': 20, 'min_samples_split': 25, 'n_estimators': 200, 'subsample': 0.7}
+
+Cross-validated RMSE: 0.12168739147724958 ± 0.009218363578575823
+
+Gradient Boosting - Training RMSE: 0.07288238300726942
+Gradient Boosting - Test RMSE: 0.09683289742821258
+Gradient Boosting - R2: 0.7035736241140653
+
+Analysis: Better
+
+~~~~~~~~~~~~~~~~~~~~~~
+
+
+Final Analysis:
+
+I would say the Gradient Boosting is better with the last results I had. The Test RMSE indicated deviation from presicted to actual is 0.0968. The R2 indicates a 70.36% variance in the confidence in govt. The difference between the training and test RMSE suggests it might not be overfitting. The cross validated RMSE shows small deviation and suggests good performance across the different splits. I think my model works well enough in predicting the confidence in government. 
